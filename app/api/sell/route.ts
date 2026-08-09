@@ -17,41 +17,39 @@ export async function POST(request: Request) {
 
     const game = String(body.game ?? "").trim();
     const title = String(body.title ?? "").trim();
-    const platform = String(body.platform ?? "").trim();
-    const region = String(body.region ?? "").trim();
-    const level = String(body.level ?? "").trim();
-    const rank = String(body.rank ?? "").trim();
     const description = String(body.description ?? "").trim();
-    const image = String(body.image ?? "").trim();
-    const price = Number(body.price);
+    const accountNumber = String(body.accountNumber ?? "").trim();
+
+    const images = Array.isArray(body.images)
+      ? body.images
+          .map((image: unknown) => String(image).trim())
+          .filter(Boolean)
+      : [];
 
     if (
       !game ||
       !title ||
-      !platform ||
-      !region ||
       !description ||
-      !Number.isFinite(price) ||
-      price <= 0
+      !accountNumber ||
+      images.length === 0
     ) {
       return NextResponse.json(
-        { error: "Please complete all required fields." },
+        {
+          error:
+            "Please provide the game, title, account details, and at least one image.",
+        },
         { status: 400 }
       );
     }
 
-    const submission = await prisma.sellSubmission.create({
+    const submission = await prisma.sellRequest.create({
       data: {
-        sellerId: session.userId,
+        userId: session.userId,
         game,
         title,
-        platform,
-        region,
-        level: level || null,
-        rank: rank || null,
         description,
-        image: image || null,
-        price,
+        accountNumber,
+        images,
         status: "PENDING",
       },
     });
@@ -60,7 +58,9 @@ export async function POST(request: Request) {
       success: true,
       submissionId: submission.id,
     });
-  } catch {
+  } catch (error) {
+    console.error("Sell submission error:", error);
+
     return NextResponse.json(
       { error: "Unable to submit account." },
       { status: 500 }
