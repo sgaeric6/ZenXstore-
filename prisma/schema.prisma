@@ -1,0 +1,197 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  SUPPORT
+  ADMIN
+}
+
+enum AccountStatus {
+  PENDING
+  AVAILABLE
+  SOLD
+  REMOVED
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAYMENT_REVIEW
+  PAID
+  COMPLETED
+  CANCELLED
+  REFUND_REQUESTED
+  REFUNDED
+}
+
+enum SupportStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
+}
+
+enum SellStatus {
+  PENDING
+  BOUGHT
+  NOT_BOUGHT
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  accounts     Account[]
+  orders       Order[]
+  wishlist     Wishlist[]
+  tickets      SupportTicket[]
+  sellRequests SellRequest[]
+  notifications Notification[]
+}
+
+model Account {
+  id          String        @id @default(cuid())
+  title       String
+  game        String
+  description String
+  price       Decimal       @db.Decimal(12, 2)
+
+  image       String?
+  platform    String
+  region      String
+  level       String?
+  rank        String?
+  skins       String?
+
+  featured    Boolean       @default(false)
+  instantDelivery Boolean   @default(false)
+
+  status      AccountStatus @default(PENDING)
+
+  sellerId    String?
+  seller      User?         @relation(fields: [sellerId], references: [id])
+
+  orders      Order[]
+  wishlists   Wishlist[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  trackingId  String      @unique
+
+  userId      String
+  accountId   String
+
+  amount      Decimal     @db.Decimal(12, 2)
+  status      OrderStatus @default(PENDING_PAYMENT)
+
+  deliveryEmail String
+
+  accountEmail    String?
+  accountPassword String?
+  recoveryInfo   String?
+
+  paymentProof   String?
+
+  user           User      @relation(fields: [userId], references: [id])
+  account        Account   @relation(fields: [accountId], references: [id])
+
+  invoice        Invoice?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+
+  userId    String
+  accountId String
+
+  user      User     @relation(fields: [userId], references: [id])
+  account   Account  @relation(fields: [accountId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, accountId])
+}
+
+model SupportTicket {
+  id        String        @id @default(cuid())
+  userId    String
+
+  subject   String
+  status    SupportStatus @default(OPEN)
+
+  user      User          @relation(fields: [userId], references: [id])
+  messages  SupportMessage[]
+
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model SupportMessage {
+  id        String   @id @default(cuid())
+
+  ticketId  String
+  senderId  String
+  message   String
+
+  ticket    SupportTicket @relation(fields: [ticketId], references: [id])
+  sender    User           @relation(fields: [senderId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+
+  title     String
+  message   String
+  read      Boolean  @default(false)
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Invoice {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+
+  order     Order    @relation(fields: [orderId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model SellRequest {
+  id          String     @id @default(cuid())
+
+  userId      String
+
+  game        String
+  title       String
+  description String
+  accountNumber String
+  images      String[]
+
+  status      SellStatus @default(PENDING)
+
+  user        User       @relation(fields: [userId], references: [id])
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
