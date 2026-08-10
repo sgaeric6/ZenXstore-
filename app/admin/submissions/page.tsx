@@ -14,7 +14,7 @@ export default async function AdminSubmissionsPage() {
     redirect("/");
   }
 
-  const submissions = await prisma.sellSubmission.findMany({
+  const submissions = await prisma.sellRequest.findMany({
     where: {
       status: "PENDING",
     },
@@ -22,7 +22,7 @@ export default async function AdminSubmissionsPage() {
       createdAt: "desc",
     },
     include: {
-      seller: {
+      user: {
         select: {
           id: true,
           name: true,
@@ -108,15 +108,22 @@ export default async function AdminSubmissionsPage() {
 
                   <p>{submission.description}</p>
 
+                  {submission.skins && (
+                    <p>
+                      <strong>Skins / Items:</strong>{" "}
+                      {submission.skins}
+                    </p>
+                  )}
+
                   <div className="submissionSeller">
                     <strong>Seller</strong>
 
                     <span>
-                      {submission.seller.name}
+                      {submission.user.name}
                     </span>
 
                     <span>
-                      {submission.seller.email}
+                      {submission.user.email}
                     </span>
                   </div>
                 </div>
