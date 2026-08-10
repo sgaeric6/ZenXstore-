@@ -43,20 +43,21 @@ enum SellStatus {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String
-  email         String         @unique
-  passwordHash  String
-  role          Role           @default(USER)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id                   String            @id @default(cuid())
+  name                 String
+  email                String            @unique
+  passwordHash         String
+  role                 Role              @default(USER)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
 
-  accounts      Account[]
-  orders        Order[]
-  wishlist      Wishlist[]
-  tickets       SupportTicket[]
-  sellRequests  SellRequest[]
-  notifications Notification[]
+  accounts             Account[]
+  orders               Order[]
+  wishlist             Wishlist[]
+  tickets              SupportTicket[]
+  sellRequests         SellRequest[]
+  notifications        Notification[]
+  sentSupportMessages  SupportMessage[]
 }
 
 model Account {
@@ -82,7 +83,7 @@ model Account {
   seller          User?         @relation(fields: [sellerId], references: [id])
 
   orders          Order[]
-  wishlists       Wishlist[]
+  wishlists      Wishlist[]
 
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -102,7 +103,7 @@ model Order {
 
   accountEmail    String?
   accountPassword String?
-  recoveryInfo   String?
+  recoveryInfo    String?
 
   paymentProof    String?
 
