@@ -17,26 +17,29 @@ export async function POST(request: Request) {
 
     const game = String(body.game ?? "").trim();
     const title = String(body.title ?? "").trim();
+    const platform = String(body.platform ?? "").trim();
+    const region = String(body.region ?? "").trim();
+    const level = String(body.level ?? "").trim();
+    const rank = String(body.rank ?? "").trim();
     const description = String(body.description ?? "").trim();
-    const accountNumber = String(body.accountNumber ?? "").trim();
+    const skins = String(body.skins ?? "").trim();
+    const image = String(body.image ?? "").trim();
 
-    const images = Array.isArray(body.images)
-      ? body.images
-          .map((image: unknown) => String(image).trim())
-          .filter(Boolean)
-      : [];
+    const priceValue = Number(body.price);
 
     if (
       !game ||
       !title ||
+      !platform ||
+      !region ||
       !description ||
-      !accountNumber ||
-      images.length === 0
+      !Number.isFinite(priceValue) ||
+      priceValue <= 0
     ) {
       return NextResponse.json(
         {
           error:
-            "Please provide the game, title, account details, and at least one image.",
+            "Please provide the game, title, platform, region, description, and a valid price.",
         },
         { status: 400 }
       );
@@ -47,9 +50,14 @@ export async function POST(request: Request) {
         userId: session.userId,
         game,
         title,
+        platform,
+        region,
+        level: level || null,
+        rank: rank || null,
         description,
-        accountNumber,
-        images,
+        skins: skins || null,
+        price: priceValue,
+        image: image || null,
         status: "PENDING",
       },
     });
