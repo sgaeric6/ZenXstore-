@@ -1,3 +1,4 @@
+```tsx
 import { redirect } from "next/navigation";
 import { prisma } from "../../../lib/prisma";
 import { getSession } from "../../../lib/auth";
@@ -111,9 +112,9 @@ export default async function AdminOrdersPage() {
                 </strong>
 
                 <span
-                  className={`statusBadge status-${order.paymentStatus.toLowerCase()}`}
+                  className={`statusBadge status-${order.status.toLowerCase()}`}
                 >
-                  {order.paymentStatus}
+                  {order.status}
                 </span>
 
                 <div>
@@ -135,3 +136,4 @@ export default async function AdminOrdersPage() {
     </div>
   );
 }
+```
