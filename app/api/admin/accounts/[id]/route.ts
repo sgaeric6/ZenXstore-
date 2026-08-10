@@ -57,7 +57,9 @@ export async function PATCH(
       success: true,
       account,
     });
-  } catch {
+  } catch (error) {
+    console.error("Unable to update account:", error);
+
     return NextResponse.json(
       { error: "Unable to update account." },
       { status: 500 }
@@ -81,4 +83,31 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await prisma.account.delete
+    const account = await prisma.account.findUnique({
+      where: { id },
+    });
+
+    if (!account) {
+      return NextResponse.json(
+        { error: "Account not found." },
+        { status: 404 }
+      );
+    }
+
+    await prisma.account.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "Account deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Unable to delete account:", error);
+
+    return NextResponse.json(
+      { error: "Unable to delete account." },
+      { status: 500 }
+    );
+  }
+}
