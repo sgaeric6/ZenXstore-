@@ -1,42 +1,15 @@
-import { redirect } from "next/navigation";
-import { prisma } from "../../../lib/prisma";
-import { getSession } from "../../../lib/auth";
-import AdminSidebar from "../../../components/AdminSidebar";
-import { formatPrice } from "../../../lib/utils";
+import { redirect } from "next/navigation";import { prisma } from "../../../lib/prisma";import { getSession } from "../../../lib/auth";import AdminSidebar from "../../../components/AdminSidebar";import { formatPrice } from "../../../lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminOrdersPage() {
-const session = await getSession();
+export default async function AdminOrdersPage() {const session = await getSession();
 
-if (!session || session.role !== "ADMIN") {
-redirect("/");
-}
+if (!session || session.role !== "ADMIN") {redirect("/");}
 
-const orders = await prisma.order.findMany({
-orderBy: {
-createdAt: "desc",
-},
-include: {
-user: {
-select: {
-name: true,
-email: true,
-},
-},
-account: {
-select: {
-title: true,
-game: true,
-image: true,
-},
-},
-},
-});
+const orders = await prisma.order.findMany({orderBy: {createdAt: "desc",},include: {user: {select: {name: true,email: true,},},account: {select: {title: true,game: true,image: true,},},},});
 
-return ( <div className="adminLayout"> <AdminSidebar />
+return (<div className="adminLayout"><AdminSidebar />
 
-```
   <main className="adminContent">
     <div className="adminPageHeader">
       <div>
@@ -120,7 +93,5 @@ return ( <div className="adminLayout"> <AdminSidebar />
     )}
   </main>
 </div>
-```
 
-);
-}
+);}
