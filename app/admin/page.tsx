@@ -12,32 +12,34 @@ export default async function AdminDashboard() {
     redirect("/");
   }
 
-  const [
-    accounts,
-    pendingSales,
-    orders,
-    supportTickets,
-  ] = await Promise.all([
-    prisma.account.count(),
-    prisma.sellSubmission.count({
-      where: { status: "PENDING" },
-    }),
-    prisma.order.count(),
-    prisma.supportTicket.count({
-      where: {
-        status: {
-          in: ["OPEN", "WAITING_FOR_SUPPORT"],
+  const [accounts, pendingSales, orders, supportTickets] =
+    await Promise.all([
+      prisma.account.count(),
+
+      prisma.sellRequest.count({
+        where: {
+          status: "PENDING",
         },
-      },
-    }),
-  ]);
+      }),
+
+      prisma.order.count(),
+
+      prisma.supportTicket.count({
+        where: {
+          status: {
+            in: ["OPEN", "IN_PROGRESS"],
+          },
+        },
+      }),
+    ]);
 
   return (
-    <section className="adminPage">
-      <div className="adminHeader">
+    <section className="adminContent">
+      <div className="adminPageHeader">
         <div>
           <span>ZENXSTORE ADMIN</span>
           <h1>Dashboard</h1>
+          <p>Manage your marketplace from one place.</p>
         </div>
       </div>
 
