@@ -38,80 +38,81 @@ enum SupportStatus {
 
 enum SellStatus {
   PENDING
-  BOUGHT
-  NOT_BOUGHT
+  APPROVED
+  REJECTED
 }
 
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  passwordHash String
-  role         Role     @default(USER)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  role          Role           @default(USER)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
-  accounts     Account[]
-  orders       Order[]
-  wishlist     Wishlist[]
-  tickets      SupportTicket[]
-  sellRequests SellRequest[]
+  accounts      Account[]
+  orders        Order[]
+  wishlist      Wishlist[]
+  tickets       SupportTicket[]
+  sellRequests  SellRequest[]
   notifications Notification[]
 }
 
 model Account {
-  id          String        @id @default(cuid())
-  title       String
-  game        String
-  description String
-  price       Decimal       @db.Decimal(12, 2)
+  id              String        @id @default(cuid())
+  title           String
+  game            String
+  description     String
+  price           Decimal       @db.Decimal(12, 2)
 
-  image       String?
-  platform    String
-  region      String
-  level       String?
-  rank        String?
-  skins       String?
+  image           String?
+  platform        String
+  region          String
+  level           String?
+  rank            String?
+  skins           String?
 
-  featured    Boolean       @default(false)
-  instantDelivery Boolean   @default(false)
+  featured        Boolean       @default(false)
+  instantDelivery Boolean       @default(false)
 
-  status      AccountStatus @default(PENDING)
+  status          AccountStatus @default(PENDING)
 
-  sellerId    String?
-  seller      User?         @relation(fields: [sellerId], references: [id])
+  sellerId        String?
+  seller          User?         @relation(fields: [sellerId], references: [id])
 
-  orders      Order[]
-  wishlists   Wishlist[]
+  orders          Order[]
+  wishlists       Wishlist[]
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  trackingId  String      @unique
+  id              String      @id @default(cuid())
+  trackingId      String      @unique
 
-  userId      String
-  accountId   String
+  userId          String
+  accountId       String
 
-  amount      Decimal     @db.Decimal(12, 2)
-  status      OrderStatus @default(PENDING_PAYMENT)
+  amount          Decimal     @db.Decimal(12, 2)
+  status          OrderStatus @default(PENDING_PAYMENT)
 
-  deliveryEmail String
+  deliveryEmail   String
 
   accountEmail    String?
   accountPassword String?
   recoveryInfo   String?
 
-  paymentProof   String?
+  paymentProof    String?
 
-  user           User      @relation(fields: [userId], references: [id])
-  account        Account   @relation(fields: [accountId], references: [id])
+  user            User        @relation(fields: [userId], references: [id])
+  account         Account     @relation(fields: [accountId], references: [id])
 
-  invoice        Invoice?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  invoice         Invoice?
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 model Wishlist {
@@ -129,30 +130,30 @@ model Wishlist {
 }
 
 model SupportTicket {
-  id        String        @id @default(cuid())
+  id        String          @id @default(cuid())
   userId    String
 
   subject   String
-  status    SupportStatus @default(OPEN)
+  status    SupportStatus   @default(OPEN)
 
-  user      User          @relation(fields: [userId], references: [id])
+  user      User            @relation(fields: [userId], references: [id])
   messages  SupportMessage[]
 
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
 }
 
 model SupportMessage {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
 
   ticketId  String
   senderId  String
   message   String
 
   ticket    SupportTicket @relation(fields: [ticketId], references: [id])
-  sender    User           @relation(fields: [senderId], references: [id])
+  sender    User          @relation(fields: [senderId], references: [id])
 
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
 }
 
 model Notification {
@@ -184,9 +185,14 @@ model SellRequest {
 
   game        String
   title       String
+  platform    String
+  region      String
+  level       String?
+  rank        String?
   description String
-  accountNumber String
-  images      String[]
+  skins       String?
+  price       Decimal    @db.Decimal(12, 2)
+  image       String?
 
   status      SellStatus @default(PENDING)
 
